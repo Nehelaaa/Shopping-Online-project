@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Fucci</title>
+	<link rel="stylesheet" type="text/css" href="style.css">
+	<script type="text/javascript" src="javascript.js"></script>
+	<script src="https://kit.fontawesome.com/a076d05399.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
+</head>
+<body>
+	<div class="scroll-up-btn">
+		<i class="fas fa-angle-up"></i>
+	</div>
+	<nav class="navbar">
+		<div class="max-width"></div>
+		<div class="logo"><a href="#home">F u <span>c c i</span></a></div>
+		<ul class="menu">
+			<li><a href="index.html" class="menu-btn">Home</a></li>
+			<li><a href="About.html" class="menu-btn">About Fucci</a></li>
+			<li><a href="Men.html" class="menu-btn">Men</a></li>
+			<li><a href="Women.html" class="menu-btn">Women</a></li>
+			<li><a href="Bags.html" class="menu-btn">Bags</a></li>
+			<li><a href="Checkout.html" class="menu-btn">Checkout</a></li>
+		</ul>
+		<div class="menu-btn">
+			<i class="fas fa-bars"></i>
+		</div>
+		</div>
+	</nav>
+	<!-- home section start -->
+	
+	<section class="home" id="home">
+		<div class="max-width">
+			<div class="home-content">
+			</div>
+		</div>
+	</section>
+
+		<!-- Collection section start -->
+			
+	<div class="row">
+		<div class="max-width">
+		  <div class="column">
+				<h2>Spring collection</h2>
+			<img src="Images/slide1.jpg" alt="slide1" style="width:100%">
+			<p>sddsdd</p>
+		  </div>
+		  <div class="column">
+			<h2>Spring collection</h2>
+			<img src="Images/slide2.png" alt="Forest" style="width:100%">
+			<p>sddsdd</p>
+		  </div>
+		  <div class="column">
+			  <h2>Spring collection</h2>
+			<img src="Images/slide3.png" alt="Mountains" style="width:100%">
+			<p>sddsdd</p>
+		  </div>
+		</div> 
+	</div>
+
+
+<div class="banner">
+	<div class="max-width">
+		<h2 class="w3-center">Automatic Slideshow</h2>
+		
+		<div class="w3-content w3-section" style="max-width:500px">
+		  <img class="mySlides" src="Images/slide3.png" style="width: 250%;">
+		  <img class="mySlides" src="Images/slide2.png" style="width: 250%;">
+		  <img class="mySlides" src="Images/slide4.png" style="width: 250%;">
+		</div>
+	</div>
+</div>	
+ 		
+	<script>
+		var myIndex = 0;
+		carousel();
+		
+		function carousel() {
+		  var i;
+		  var x = document.getElementsByClassName("mySlides");
+		  for (i = 0; i < x.length; i++) {
+			x[i].style.display = "none";  
+		  }
+		  myIndex++;
+		  if (myIndex > x.length) {myIndex = 1}    
+		  x[myIndex-1].style.display = "block";  
+		  setTimeout(carousel, 2000); 
+		}
+
+	</script>
+	
+</body>
+</html>

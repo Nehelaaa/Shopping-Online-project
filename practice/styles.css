@@ -1,0 +1,12 @@
+p{
+    padding-left: 15px;
+}
+p.dots{
+    border-style: dotted;
+}
+p.cuts{
+    border-style: dotted;
+}
+p.cuts{
+    border-style: dotted dashed solid double;
+}

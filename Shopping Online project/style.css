@@ -1,0 +1,192 @@
+
+.max-width{
+    max-width: 1300px;
+    padding: 0 80px;
+    margin: auto;
+
+}
+html{
+	scroll-behavior: smooth;
+}
+
+/* navbar styling*/
+.navbar{
+    position: relative;
+    width: 100%;
+    z-index: 999;
+    padding: 30px 0;
+    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif ;
+    transition: all 0.3s ease;
+}
+.navbar .logo a span{
+    color: darkgreen ;
+    font-size: 45px;
+    font-weight: 700;
+   
+    
+}
+.navbar .logo a{
+    color: red;
+    font-size: 45px;
+    font-weight: 700;
+   
+   /* border-bottom: 5px dotted red;
+    border-top: 5px dotted darkgreen;
+    border-right: 5px solid red;
+    border-left: 5px solid darkgreen; */
+}
+.navbar .logo{
+    text-align: center;
+    border: 12px darkgreen ;
+    padding-bottom: 30px;
+    margin: 20px;
+   
+}
+
+.navbar .menu li{
+    list-style: none;
+    display: inline-block;
+   
+}
+.navbar .menu li a{
+    display: block;
+    margin-left: 25px;
+    color: black;
+    font-size: 18px;
+    font-weight: 600;
+    transition: color 0.3s ease;
+    
+}
+.menu{
+    text-align: center;
+    
+}
+
+.ul .menu{
+    list-style: none;
+    background-color: #eee;
+    padding: 10px 16px;
+
+}
+.ul .menu li a{
+    text-decoration: none;
+}
+
+
+/*menu btn*/
+.menu-btn{
+    color: dark silver;
+    font-size: 20px;
+    font-weight: 700;
+    cursor: pointer;
+    display: none;
+}
+.scroll-up-btn{
+    color: darkgreen;
+    position: fixed;
+    height: 45px;
+    width: 45px;
+    background: darkgreen;
+    right: 30px;
+    bottom: 10px;
+    text-align: center;
+    line-height: 45px;
+    color: black;
+    z-index: 9999;
+    font-size: 25px;
+    border-radius: 6px;
+    border-bottom-width: 2px;
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s ease;  
+
+}
+.scroll-up-btn .show{
+    opacity: 1;
+    bottom: 30px;
+    pointer-events: auto;
+}
+.scroll-up-btn :hover{
+    filter: brightness(90%);
+}
+
+/*home-content*/
+
+.home{
+    display: flex;
+    background: url("Images/Banner1.jpg") no-repeat;
+    height: 100vh;
+    color: black;
+    min-height: 500px;
+    background-size: cover;
+    background-attachment: fixed;
+    font-family: sans-serif;
+    ;
+}
+.home .max-width{
+    max-width: 100%;
+    display: flex;
+    
+}
+.home .max-width .row{
+	margin-right: 0;
+    
+  }
+
+
+  * {
+
+    box-sizing: border-box;
+  }
+  
+  .column {
+    float: left;
+    width: 33.33%;
+    padding: 5px;
+  }
+  
+  /* Clearfix (clear floats) */
+  .row::after {
+    content: "";
+    clear: both;
+    display: table;
+  }
+
+/*New-collection*/
+.row .column h2{
+    font-size: 25px;
+    text-align: center;
+    
+}
+
+.row .column p{
+    font-size: 17px;
+    text-align: center;
+    
+}
+.row{
+    display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+
+}
+.row .max-width{
+    max-width:  1300px;
+	padding: 0 80px;
+	margin: auto;
+    
+    
+}    
+.row{
+    background-color: white;
+    
+}
+
+
+.banner{
+    background-color: black;
+  
+}
+
