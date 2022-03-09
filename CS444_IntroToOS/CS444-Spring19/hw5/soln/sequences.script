@@ -1,0 +1,76 @@
+Script started on Mon 15 May 2017 12:28:56 PM EDT
+tuser@tutor-vserver:~/cs444/hw5_new$ mtip -f sequences.lnx
+For command help, type ~?
+For help on args, rerun without args
+Code starts at 0x100100
+Using board # 1 
+Please type <CR> to confirm console setting: 
+Setting console dev to COM2Console: colour EGA+ 80x25
+COM1 at 0x03f8 (irq = 4) is a 16550A
+COM2 at 0x02f8 (irq = 3) is a 16550A
+
+                 Welcome to UMB Tutor for the PC
+   UMB Tutor is a 32-bit protected-mode PC debugger/downloader,
+       based on Linux, UMB Tutor for m68k, and remote gdb.
+UMB Tutor is free software and you are welcome to distribute copies
+of it under certain conditions.  There is no warranty for this program.
+The copyright and warranty provisions follow the Gnu general public
+license, available for view in gdb and elsewhere.  Full sources available.
+--bugs, suggestions, questions to eoneil@cs.umb.edu
+
+Exception 3 at EIP=00057a9b: Breakpoint
+Tutor> ~downloading sequences.lnx
+
+.............Done.
+
+Download done, setting EIP to 100100.
+Tutor> go 100100      100100
+aaaaaaaaaazzzmain3: Tested all sequences that start at less than 500000.
+main2: Tested sequences through 500000.
+main2: Longest sequence of length 446 started at 410011.
+AAAAAAAAAASHUTTING DOWN
+SHUTTING THE SYSTEM DOWN!
+
+SHUTTING DOWN process 1 with exit code 2, CPU Usage: 119, Chars Out: 23
+
+SHUTTING DOWN process 2 with exit code 1, CPU Usage: 83, Chars Out: 99
+
+SHUTTING DOWN process 3 with exit code 1, CPU Usage: 7, Chars Out: 61
+-----------------------------------------------------------------
+Schedule called 1 times from Process 0
+
+Schedule called 3 times from SysExit
+
+Schedule called 0 times from SysRead
+
+Schedule called 0 times from SysWrite
+
+Schedule called 50 times from Tick Handler
+
+Schedule called 0 times from Semaphore::down
+-----------------------------------------------------------------
+Debug log from run:
+Marking kernel events as follows:
+  ^a   COM2 input interrupt, a received
+  ~    COM2 output interrupt, ordinary char output
+  ~e   COM2 output interrupt, echo output
+  ~s   COM2 output interrupt, shutdown TX ints
+  %    Pre-emption attempted
+  *n   timer interrupt in process n
+  |(1z-2) process switch from 1, now a zombie, to 2
+  |(1b-2) process switch from 1, now blocked, to 2
+  |(2-1) process switch by preemption from 2 to 1
+
+
+*0~~~~~~~s~~~~~s~~s~~s~~s*1*1*1*1%|(1-2)*2*2*2*2%|(2-3)*3*3*3*3%|(3-1)*1*1*1*1%|(1-2)*2*2*2*2%|(2-3)*3*3~~s~~s~~s~~s~~s~~s~~s~~s~~s*3~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s|(3z-1)*1*1*1*1%|(1-2)*2*2*2*2%|(2-1)*1*1*1*1%|(1-2)*2*2*2*2%|(2-1)*1*1*1*1%|(1-2)*2*2*2*2%|(2-1)*1*1*1*1%|(1-2)*2*2*2*2%|(2-1)*1*1*1*1%|(1-2)*2*2*2*2%|(2-1)*1*1*1*1%|(1-2)*2*2*2*2%|(2-1)*1*1*1*1%|(1-2)*2*2*2*2%|(2-1)*1*1*1*1%|(1-2)*2*2*2*2%|(2-1)*1*1*1*1%|(1-2)*2*2*2*2%|(2-1)*1*1*1*1%|(1-2)*2*2*2*2%|(2-1)*1*1*1*1%|(1-2)*2*2*2*2%|(2-1)*1*1*1*1%|(1-2)*2*2*2*2%|(2-1)*1*1*1*1%|(1-2)*2*2*2*2%|(2-1)*1*1*1*1%|(1-2)*2*2*2*2%|(2-1)*1*1*1*1%|(1-2)*2*2*2*2%|(2-1)*1*1*1*1%|(1-2)*2*2*2*2%|(2-1)*1*1*1*1%|(1-2)*2*2*2*2%|(2-1)*1*1*1*1%|(1-2)*2*2*2*2%|(2-1)*1*1*1*1%|(1-2)*2*2~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s*2~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s~~s|(2z-1)*1*1*1*1%|(1-1)*1*1*1*1%|(1-1)*1*1*1*1%|(1-1)*1*1*1*1%|(1-1)*1*1*1*1%|(1-1)*1*1*1*1%|(1-1)*1*1*1*1%|(1-1)*1*1*1*1%|(1-1)*1*1*1~~~~~~~s~~~~~s|(1z-0)*0*0*0*0*0
+LEAVE KERNEL!
+
+Exception 3 at EIP=0010010b: Breakpoint
+Tutor> 
+Tutor> 
+Quit handler: 
+killing process 1968 Leaving board #1
+tuser@tutor-vserver:~/cs444/hw5_new$ exit
+exit
+
+Script done on Mon 15 May 2017 12:30:26 PM EDT

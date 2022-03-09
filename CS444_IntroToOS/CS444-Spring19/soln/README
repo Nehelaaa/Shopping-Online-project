@@ -1,0 +1,50 @@
+CS444 hw5 Solution files: preemptive kernel, semaphore syscalls
+thanks to Dana Chandler for many parts of this solution
+
+tunix.c: kernel startup, kernel has its own stack, which is set in startup0.s;
+	 set up system call dispatch, now including semaphore syscalls
+         initialize process table
+         reserve process 0 for kernel itself;
+         print all processes's exitcode after Q drained, exit system;
+
+sched.c: schedule(), sleep(event), wakeup(event)
+         1.schedule() seeks a runnable process, 
+           if marked "RUN", select it,
+           if all user processes are blocked, select process 0
+         2.sleep(event) stores new BLOCKED status of current process,
+ 		 then call scheduler()
+         3.wakeup(event) makes all blocked processes waiting on event to be 
+           marked runnable
+
+for hw5, these have been extended to track callers of schedule:
+sched.c: schedule(call_loc), sleep(event, caller), wakeup(event),
+         Otherwise, they work as above.
+
+asmswtch.s: CPU context switch
+
+tickpack.c: sets up timer for periodic ticks, has tick handler
+	that decrements the process's p_quantum, calls schedule() at 0
+
+semaphore.c: implementation of syssem_create, sysdown, sysup, syssem_delete,
+	for semaphore system calls
+
+tty.c:   1. When ttywrite encounters a full output buffer, it blocks the 
+	 process by calling sleep(event);  (event = TTY1_OUTPUT for COM2)
+         2. When a char is sent out from the output buffer by the TX int 
+         handler, space is available, so, call wakeup(event) 
+	 3. Similarly, when ttyread encounters an empty input buffer, it
+         blocks the process by calling sleep(event); (event = TTY1_INPUT...)
+	 4. When a char is received, the int handler calls wakeup(event).
+---user level code:---
+crt0x.s: starts at _ustartx, call mainx  ( x=1, 2, 3 )
+uprog123.c: user programs for first test, no semaphores
+sequences.c: user programs for two CPU-bound processes
+testmutex.c: user programs for user-level mutex test using semaphores
+prodcons.c: 3 related user programs for producer/consumer test
+ulib.s: now has semaphore syscalls too
+
+
+
+
+
+

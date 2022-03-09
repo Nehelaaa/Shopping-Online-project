@@ -1,0 +1,522 @@
+Script started on Tue 26 Mar 2013 09:11:49 AM EDT
+
+jlantos1@vm71:~/cs240/hw4$ l [Ks -l
+total 15
+-rw-r--r-- 1 jlantos1 cs240-1G  441 Mar 26 09:01 calc.h
+-rw-r--r-- 1 jlantos1 cs240-1G   
+33 Mar 24 18:55 calc.in
+-rw-r--r-- 1 jlantos1 cs240-1G  931 Mar 26 08:59 getch.c
+-rw-r--r-- 1 jlantos1 cs240-1G 1091 Mar 26 08:59 getop.c
+-rw-r--r-- 1 
+jlantos1 cs240-1G 1398 Mar 26 08:58 main.c
+-rw-r--r-- 1 jlantos1 cs240-1G 1250 Mar 26 09:08 makefile
+-rw-r--r-- 1 jlantos1 cs240-1G 1197 Mar 26 09:08 makefile2
+-rw-r--r-- 1 
+jlantos1 cs240-1G 1076 Mar 26 08:59 stack.c
+drwxr-sr-x 2 jlantos1 cs240-1G  512 Mar 26 08:41 temp
+-rw-r--r-- 1 jlantos1 cs240-1G  
+ 32 Mar 23 17:54 test
+-rw-r--r-- 1 jlantos1 cs240-1G    0 Mar 26  2013 
+typescript
+jlantos1@vm71:~/cs240/hw4$ scr[K[K[Kcat main.c
+/* James Lantos, CS240, HW4 
+*/
+/* March 26 2013 */
+/*
+ * main.c
+ *
+ * reverse polish calculator
+ */
+
+/* Program main is part of the polish calculator program  			
+*/
+/* Some code adapted from K/R textbook code 						*/
+/* ..and code supplied by professor 								
+*/
+
+/* ===== PSEUDO CODE ======											
+*/
+/*  while (get the operators and operands )							
+*/
+/*  select the correct case 										
+*/
+/*  	push and pop from stack as appropriate as per code			
+*/
+/*  print out answer or error										
+*/
+
+
+#include <stdio.h>
+#include "calc.h" /* header file */
+#include <math.h>
+#include <stdlib.h>
+
+
+#define MAXOP 100
+
+
+main()
+
+{
+  
+int type;
+  int op2, op3, op4;
+  char s[MAXOP];
+ 
+ 
+ 
+while ((type = getop(s)) != EOF) 
+    
+{
+      
+switch(type) 
+	
+{
+	
+case NUMBER:
+	  push(atoi(s));
+	  break;
+	case '+':
+	  push(pop() + pop());
+	  break;
+	
+case '*':
+	  push(pop() * pop());
+	  break;
+	case '-':
+	  op2 = pop();
+	  push(pop() - op2);
+	  break;
+	
+case '/':
+	  op2 = pop();
+	  if (op2 != 0.0)
+	    push(pop() / op2);
+	  
+else 
+	    
+{
+	      
+printf("error : zero divisor\n");
+	      exit(1);
+	    }
+	  
+break;
+	  
+case '^':
+	  push(pop() ^ pop());
+	  break;
+	case '%':
+	  op3 = pop();
+	  push(pop() % op3);
+	  break;
+	
+case '~':
+	  op4 = pop();
+	  push(~op4);
+	  break;
+		
+	
+case '\n':
+	  printf("The answer is %8d\n", pop());
+	  break;
+	
+default:
+	  printf("error: unknown command %s\n", s);
+	  exit(1);
+	
+}
+    
+}
+
+}
+
+jlantos1@vm71:~/cs240/hw4$ cat stack.c
+
+/* James Lantos, CS240, HW4 
+*/
+/* March 26 2013 
+*/
+/*
+ 
+* stack.c
+ *
+ * stack routines
+ */
+
+/* Program stack.c is part of the polish calculator program  			
+*/
+/* Some code adapted from K/R textbook code 						
+*/
+/* ..and code supplied by professor 								
+*/
+
+/* ===== PSEUDO CODE ======											
+*/
+/*  push - push the next value onto the stack array 				
+*/
+/*  pop - get the first value back from the stack array				
+*/
+
+#include <stdio.h>
+
+#include "calc.h"
+
+#define MAXVAL 100  
+/* maximum depth of val stack */
+
+
+/* even better, we could make the following two defines "static"
+   and thus hide these data structures from the rest of the sources */
+
+static int sp = 0;         
+/* next free stack position */
+
+static int val[MAXVAL]; 
+/* value stack */
+
+
+
+/* push: push f onto value stack */
+
+void push(int f)
+
+{
+    if (sp < MAXVAL)
+	val[sp++] = f;
+    else
+	printf("error: stack full, can't push %d\n", f);
+}
+
+
+
+/* pop: pop and return top value from stack */
+
+
+int pop(void)
+{
+    if (sp > 0)
+	return val[--sp];
+    else
+      {
+	printf("error: stack empty\n");
+	return 0;
+      }
+}
+
+
+jlantos1@vm71:~/cs240/hw4$ cat getch.c
+/* James Lantos, CS240, HW4 */
+/* March 26 2013 */
+
+/*
+ * getch.c
+ *
+ * getch  returns one  character from stdin 
+ * or from the buffer buf if it is not empty
+ * ungetch puts one character in the buffer buf 
+ */
+
+
+/* Program getch.c is part of the polish calculator program  			*/
+
+/* Some code adapted from K/R textbook code 						*/
+
+/* ..and code supplied by professor 								*/
+
+
+/* ===== PSEUDO CODE ======											*/
+
+/*  getch / ungetch tests for maxing out size of the buffer (BUFSIZE) */
+
+
+
+#include <stdio.h>
+#define BUFSIZE 100
+
+char buf[BUFSIZE];       
+/* buffer for ungetch */
+int  bufp = 0;           
+/* next free position in buf */
+
+int getch(void)           
+/* get a (possibly pushed back) character */
+
+
+{
+    return(bufp > 0) ? buf[--bufp] : getchar();
+}
+
+
+void ungetch(int c)        
+/* push character back on input */
+
+{
+    if (bufp >= BUFSIZE)
+	printf("ungetch: too many character \n");
+    
+     else
+	buf[bufp++] = c;
+}
+
+jlantos1@vm71:~/cs240/hw4$ cat getop.c
+/* 
+James Lantos, CS240, HW4 */
+/* March 26 2013 */
+
+/* 
+ * getop.c
+ *
+ * gets next token: operator or numeric operand
+ */
+
+
+/* Program getop.c is part of the polish calculator program  			*/
+
+/* Some code adapted from K/R textbook code 						*/
+
+/* ..and code supplied by professor 								*/
+
+
+/* ===== PSEUDO CODE ======											*/
+
+/*  while (get the operators and operands )							*/
+
+/*  select the correct case 										*/
+
+/*  	push and pop from stack as appropriate as per code			*/
+
+/*  print out answer or error										*/
+
+
+#include <stdio.h>
+#include <ctype.h>
+#include "calc.h"
+
+
+int getop(char s[])
+
+{
+    int i, c;
+
+    
+     while ((s[0] = c = getch()) == ' ' || c == '\t')
+	;
+
+    s[1] = '\0';
+
+    if (!isdigit(c) && c != '.')
+      return c;  
+/* not a number */
+
+    
+/* collect integer part in string s */
+    
+i = 0;
+    if (isdigit(c))
+      while (isdigit(s[++i] = c = getch()))
+	    ;
+
+    
+/* collect fractional part in string s */
+    
+if (c == '.')
+     
+ while (isdigit(s[++i] = c = getch()))
+	;
+    
+    
+s[i] = '\0';
+   
+ if (c != EOF)
+      ungetch(c);
+    
+    return NUMBER;
+
+}
+
+
+
+jlantos1@vm71:~/cs240/hw4$ cat calc.h
+/* 
+James Lantos, CS240, HW4 */
+/* 
+March 26 2013 */
+/*
+ * calc.h header file
+ */
+
+/*
+ Program calc.h is part of the polish calculator program  		*/
+
+/* Some code adapted from K/R textbook code 						*/
+
+/* ..and code supplied by professor 								*/
+
+
+/* ===== PSEUDO CODE ======											*/
+
+/*  define functional prototypes 									*/
+	
+
+#define NUMBER '0'
+
+void push(int);
+int pop(void);
+int getop(char[]);
+int getch(void);
+void ungetch(int);
+
+jlantos1@vm71:~/cs240/hw4$ 
+cat makefile
+
+
+# makefile for hw4
+
+# format of entries;
+
+
+# < target file >:  	< source files >
+
+# 			< compilation command >
+
+
+# make will look at the last-write dates of each file, and if the target
+
+# file hasn't been updated since the source files were last modified,
+
+# it will update the target file by executing the shell command. Note that
+
+# the spacing to the < source files > and < compilation command > MUST be
+# done with tabs, not spaces.
+#
+
+# now here is a Macro as defined in Glass Unix.
+
+
+cc =		gcc -m32
+
+calcit:		main.o getop.o stack.o getch.o
+		
+$(cc) -g -lm -o calcit main.o getop.o stack.o getch.o
+ 
+
+# note that if calc.h changes, main.c and getop.c must be recompiled 
+
+
+main.o:		main.c calc.h
+		$(cc) -g -c main.c
+
+getop.o:	getop.c calc.h
+		
+$(cc) -g -c getop.c
+
+stack.o:	stack.c
+		$(cc) -g -c stack.c
+
+getch.o: 	getch.c
+		
+$(cc) -g -c getch.c
+
+# this tells make what to make if you just type 'make'; if this isn't there,
+
+# the first rule in the file will be the default.
+
+
+# default:	calcit 
+
+
+# here is a rule to clean up the directory when calcit is final and you want
+
+# to reduce the clutter in the listing. Note that clean doesn't need to
+
+# depend on any file modification time, so the < source files > position is
+
+# just left empty.
+
+clean:
+		rm *.o
+
+jlantos1@vm71:~/cs240/hw4$ cat makefile2
+
+
+# makefile for hw4
+# format of entries;
+
+# < target list >:  	< dependency list >
+
+# 			< command list >
+
+
+# make will look at the last-write dates of each file, and if the target
+# file hasn't been updated since the source files were last modified,
+
+# it will update the target file by executing the shell command. Note that
+
+# the spacing to the < dependency list > and < command list > MUST be done
+
+# with tabs, not spaces.
+#
+
+# now here is a Macro as defined in Glass 
+Unix.
+
+cc =		gcc -m32
+
+calcit:		main.o getop.o stack.o getch.o
+		
+$(cc) -g -o calcit main.o getop.o stack.o getch.o
+
+
+# note that if calc.h changes, main.c and getop.c must be recompiled
+
+
+main.o:		main.c calc.h
+		$(cc) -c -o main.o main.c
+getop.o:	getop.c calc.h
+		
+$(cc) -c -o getop.o getop.c
+
+stack.o:	stack.c 
+		
+$(cc) -c -o stack.o stack.c
+getch.o: 	getch.c 
+		
+$(cc) -c -o getch.o getch.c
+
+# this tells make what to make if you just type 'make'; if this isn't there,
+# the first rule in the file will be the default.
+
+
+# default:	calcit
+
+
+# here is a rule to clean up the directory when calcit is final and you want
+
+# to reduce the clutter in the listing. Note that clean doesn't need to
+# depend on any file modification time, so the < dependency list > position is
+
+# just left empty.
+
+clean:
+		rm *.o
+
+jlantos1@vm71:~/cs240/hw4$ 
+cat calc.in
+292 16 % 292 16 / 16 * + 292 ^ ~
+
+jlantos1@vm71:~/cs240/hw4
+$ make
+gcc -m32 -g -c main.c
+gcc -m32 -g -c getop.c
+gcc -m32 -g -c stack.c
+gcc -m32 -g -c getch.c
+gcc -m32 -g -lm -o calcit main.o getop.o stack.o getch.o 
+
+jlantos1@vm71:~/cs240/hw4$ ./cl[Kalcit < calc.in
+The answer is       -1
+
+jlantos1@vm71:~/cs240/hw4$ exit
+exit
+
+Script done on Tue 26 Mar 2013 09:12:40 AM EDT

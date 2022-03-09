@@ -1,0 +1,59 @@
+Carl Thevenin
+lpdriver.txt
+Note from eoneil: This has more than required for the hw.
+
+     In the file ioconf.c, the following lines would need to be added
+in order to support the LPT ports in this program:
+
+     ...
+     {2, lpinit, lpread, lpwrite, lpcontrol, 0x378, (int)&lptab[0]}, /* LPT0 */
+     {3, lpinit, lpread, lpwrite, lpcontrol, 0x278, (int)&lptab[1]}, /* LPT1 */
+     ...
+
+     This project would require two addition files.  The files would
+be named "lpdrv.c" and "lpdrv.h".  The header (lptdrv.h) file would
+contain the requred structured (similar to tty.h).  Within the
+structure, amungst other variables, there would exist one queue, a
+transfer queue.  The source file (lptdrv.c) file would need to contain
+at least the following function: lpinit, lpread, lpwrite, lpcontrol
+and irqinthandc. The folling is some info to what each of these
+methods would do.
+
+lpinit:
+
+     In this function, the lpt interrupt handlers would be set.  In
+addition, the transmit queue for the lpt would be initialized.  Then
+the interrupts would be enabled for the lptport letting us know when
+the printer ACKs.
+
+lpread:
+
+     In this function the read functionality would be disabled.
+
+lpwrite:
+
+     When a write request is made, this function would enqueue the
+chars from the user's buffer.  The function would continously attempt to
+add data to the queue until the end of the buffer is reached (denoted
+by some variable nchar -- indicating the number of chars to write).
+After each succesful enqueue, the lpt interrupt would be enabled to
+make sure that the irq handler stays busy.  All this would occure
+within a critical section -- disabling and enabling interrupts through
+each iteration.
+
+lpcontrol:
+
+     This function would be used to control things like whether
+to use <CR> or <CR><LF> at end of lines.
+
+irqinthandc:
+
+     In this interrupt function, the data from the transmit queue
+would be sent to the lpt port (and then the STROBE signal
+generated via PCR) unless the queue is empty.  Once the queue
+becomes empty, the function would disable interrupts for the lpt.
+(Note from eoneil: You can just write to the port and not STROBE it,
+and the printer will never notice.)
+This function would be called everytime the remote device ACKs and
+read the data that was waiting for it in the data line of the lpt
+port.

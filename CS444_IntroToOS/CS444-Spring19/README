@@ -1,0 +1,66 @@
+/*
+  * Name: Thuc Nguyen and Kathy Wu
+  * CS444 - Homework 3
+  * What to do: 
+           1) Bring all neccessary .c and .s directory from hw2 solution
+              as listed down there. 
+           2) Create the assembly ide named it as crt01.s, crt02.s, 
+              and crt03.s because this will call the ustart of 
+              main1.c main2.c and main3.c and also call sysexit 
+              in tunix.c to exit it. 
+           3) In proc.h already given, add up three defines of ESP1, ESP2 and ESP3
+           4) In sched.h, create three function definitions that are void sleep, 
+              void wakeup and int schedule. 
+           5) In sched.c, it has three functions to fill up with debug_log() which are 
+              schedule(), wakeup() and sleep()
+              There is also one more private helper function named print_switch().
+           6) In tunix.c, write more working zone inside k_init() and waiting 
+              for the interrupt to turn on and the tx queue > 0. 
+           7) Inside tunix.c of the shutdown() get rid of unncessary kprintf. 
+           8) For the int sysexit() of the tunix.c, write the exit_code and call schedule(). 
+           9) Inside the tty.c, debug_log() for wakeup, debug_log() for shutdown and debug_log()
+              to label the event happened.
+           10) The result will appear on thucng-uprogmode.script.
+*/
+
+Files for CS444 device-independent i/o package for SAPC
+
+io_public.h--applications-level header: dev indep i/o API protos
+tty_public.h--app-level header: tty-specific info
+
+conf.h--def of device struct, top-level info on device
+conf.c--actual device table, array of device structs, one for each device
+io.c--top-level device-independent calls: ioinit, read, write, control
+
+a) Shared files between Kernel and User files: 
+   tty_public.h: TTY device number
+   tsyscall.h: syscall numbers (like UNIX syscall.h/sys)
+
+b) Kernel Files:
+Device type tty (for COM lines):
+tty.h--internal header file
+tty_public.h - unchanged.
+tty.c--tty device driver, i.e., device-specific code
+	Inside the tty.c, the void sleep() is used inside int ttywrite()
+	after appearing the queue becomes available 
+        when CPU has nothing to do.
+	About the void wakeup() is used inside void irqinthandc()
+        after marking event and signaling the queue waiting process becomes available.  
+makefile2--  make tunix.lnx   builds tunix.c with tunix package
+		Run it by using make U=uprog. 
+startup0.s: same as $pclibsrc/startup0.s.  
+	Sets up stack, calls into startup1.c
+startup1.c: Same as $pclibsrc/startup.c, but calls kernel
+        initialization routine instead of main.
+io.h, io.c, ioconf.h, ioconf.c: device-independent io system
+
+c) User-level Files:
+tunistd.h: syscall prototypes (like UNIX unistd.h)
+uprog1.c:  has main(). Same as uprog2, uprog2a and uprog3 User program.
+ulib.s:  library routines for syscalls: _read, _write, 
+	_exit and _control.
+crt01.s:  user-level "C startup module"  calls _main,
+	does exit syscall.  Entry point _ustart.
+	This is the same as crt02, crt03.
+
+thucng-uprogmode.script--annotated run of sapc.sh on this solution

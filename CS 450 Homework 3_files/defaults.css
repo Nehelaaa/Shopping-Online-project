@@ -1,0 +1,58 @@
+li, p
+{
+    margin-top: 14px;
+    margin-bottom: 14px;
+}
+
+ol#alpha
+{
+  list-style-type: lower-alpha;
+}
+
+
+br
+{
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+
+p#simple
+{
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
+li#simple
+{
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+    
+div#space
+{
+    margin-top: 14px;
+    margin-bottom: 14px;
+}
+
+div#emph_border
+{
+    border-style: solid;
+    border-width: thick;
+    margin: 15px;
+    padding: 15px;
+    border-color: red;
+}
+
+div#narrow_emph_border
+{
+    border-style: solid;
+    border-width: thick;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    margin-left: 75px;
+    margin-right: 75px;
+    padding: 15px;
+    border-color: red;
+}
+

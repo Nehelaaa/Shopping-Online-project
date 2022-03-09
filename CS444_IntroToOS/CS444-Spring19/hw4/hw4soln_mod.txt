@@ -1,0 +1,262 @@
+	Solutions to CS444 hw4, Paging
+from hw of Shunshan Zhu, Natalia Krashinnenickova, and Joseph Tam
+ 
+Experimenting with the x86 MMU
+
+There is one page table (KPT0 for kernel PT#0) for this 4M system,
+itself mapped into the address space starting at 0x52000 by the
+Linux startup support.
+
+******************************************************************************
+***************************QUESTION 1*****************************************
+******************************************************************************
+
+1.  With a fresh system (reboot to make sure), dump the first 4 PTEs
+and analyze them (status bits, what VA->PA translation they do).
+
+~Resetting board #6! 
+Tutor> md 52000
+00052000    07 00 00 00 07 10 00 00 07 20 00 00 07 30 00 00 ......... ...0..
+            |---------| |---------| |---------| |---------|
+Tutor> mdd 52000
+00052000    00000007 00001007 00002007 00003007 ......... ...0..
+
+PTE#    PTE     pfn      D A PCD PWD U/S R/W P       VA          PA
+ 0   00000 007    0      0 0  0   0   1   1  1   0000-0fff   0000-0fff
+ 1   00001 007    1      0 0  0   0   1   1  1   1000-1fff   1000-1fff
+ 2   00002 007    2      0 0  0   0   1   1  1   2000-2fff   2000-2fff
+ 3   00003 007    3      0 0  0   0   1   1  1   3000-3fff   3000-3fff
+
+All these 4 pages are clean, not been accessed, all user, writable and 
+present bits are on. This is identity mapping from VA-->PA.           
+
+******************************************************************************
+***************************QUESTION 2*****************************************
+******************************************************************************
+
+2. Find and dump the first 4 PTEs for Tutor, which starts at VA 50000
+and analyze them.  Find some PTEs for pages that have never been
+touched since system reset, above VA 50000, i.e, after Tutor.
+
+  For VA 50000, its vpn is 0x50, so it has PTE#0x50;
+  also, one PTE occupies 4 bytes,
+  therefore, its PTE address is:
+        0x52000+0x50*4=0x52140
+Tutor> md 52140
+00052140    27 00 05 00 07 10 05 00 27 20 05 00 07 30 05 00 '.......' ...0..
+Tutor> mdd 52140
+00052140    00050027 00051007 00052027 00053007 '.......' ...0..
+
+PTE#    PTE     pfn     D A PCD PWD U/S R/W V(or P)
+ 50   00050027   50     0 1  0   0   1   1  1
+ 51   00051007   51     0 0  0   0   1   1  1
+ 52   00052027   52     0 1  0   0   1   1  1
+ 53   00053007   53     0 0  0   0   1   1  1
+
+The pages which have PTE#50 & 52 are clean, been accessed (but not been
+written), user, writable and present. The pages which have PTE#51 & 53 are
+clean, not been accessed, user, writable and present.
+
+Page51 & page 53 are the pages that have never been touched since system
+reset (~r), because their bit As are 0.
+
+******************************************************************************
+***************************QUESTION 3*****************************************
+******************************************************************************
+ 
+We can play with pages 0-20 or so without much worry about necessitating
+a reset, because these are left over from being bootstrap scratch memory.
+All the sensitive data is above 0x50000, including the interrupt vector
+table.
+
+3. Set page 3 as valid but not yet ref'd.  Then do a read on it, ck the
+PTE, then a write, ck the PTE and interpret your findings.
+
+Set P to be 1 so that the page is valid, and set A bit to be 0 so that 
+the page is not yet ref'd. so, we can set page 3 to be 07 30 00 00.
+ 
+
+Tutor> mdd 52000
+00052000    00000007 00001007 00002007 00003007 ......... ...0..
+             			       ======!!
+Tutor> md 00003007
+00003007    00 e8 f3 fb ff ff c7 05 00 10 09 00 00 2c 00 00 .............,..
+Tutor> mdd 52000
+00052000    00000007 00001007 00002007 00003027 ......... ..'0..
+				       ======!!
+/* After reading, the bit A is changed to 1, so 07->27. */   
+Tutor> ms 00003007 aaaa
+Tutor> md 00003007
+00003007    aa aa f3 fb ff ff c7 05 00 10 09 00 00 2c 00 00 .............,..
+
+Tutor> mdd 52000
+00052000    00000007 00001007 00002007 00003067 ......... ..g0..
+/* After being written, the D bit is changed to 1, so 27->67 */
+
+
+******************************************************************************
+***************************QUESTION 4*****************************************
+****** with modfied explanation on the VM from Ron Cheung 5/2016 *************
+******************************************************************************
+
+4. Now set page 3 as invalid and try reads and writes.  In the actual hardware,
+you see that nothing special has happened.  That's because the PTE in the PTE cache
+(also known as the "translation lookaside buffer" or TLB) is still showing the
+page as present. However, in the SAPC VM , this caching is not implemented and
+page fault occurs 
+ 
+*** If you do this on the actual hardware, this is the likely result**
+Set P (or the V bit) to be 0 so that the page is invalid, thus, I set page 3 to be
+00 30 00 00.
+***********
+
+Tutor> ms 5200c 3000
+Tutor> mdd 52000
+00052000    00000007 00001007 00002007 00003000 ......... ...0..
+Tutor> md 00003007
+00003007    aa aa f3 fb ff ff c7 05 00 10 09 00 00 2c 00 00 .............,..
+/* Nothing happens after reading.*/
+
+Tutor> ms 3000 ffff
+/* Nothing  special happens after writing.*/
+                                                ^^ ^^ ^^ ^^
+/* After being written, page 3 is changed like following. */
+Tutor> md 3000
+00003000    ff ff d0 68 6f 35 00 00 e8 f3 fb ff ff c7 05 00 ...ho5..........
+            ^^ ^^
+Tutor> mdd 52000
+00052000    00000007 00001007 00002007 00003000 ......... ...0..
+
+After reading and writing, there is no page fault, this is because the PTE
+in the TLB is still showing the page as present.  The MMU is continuing
+to use the cached PTE and not paying any attention to the real one.
+(We could flush this particular cached PTE by a special instruction.)
+However, in the SAPC VM, we always get the page fault because TLB caching is not
+implemented.
+ 
+******************************************************************************
+***************************QUESTION 5*****************************************
+******************************************************************************
+
+5. Writing a value in the CR3 registers flushes the TLB, i.e., makes
+it drop all its cache entries.  This can be done using the Tutor
+register-set command.  Use the same old CR3 value, of course, 
+or expect to reboot, for example: "Tutor> rs cr3 51000".
+Do this and retry 4.  You should see a page fault, exception 14.
+Use "rd all" to see CR2.
+
+Tutor> rd all
+EAX=00000002 EBX=00009e00   EBP=000578ac
+EDX=00000000 ECX=00069040   ESP=000578a8
+ESI=00090800 EDI=00051ffc   EIP=000578ee
+EFLAGS=0202 (IF=1 SF=0 ZF=0 CF=0 OF=0)
+CS=0010 DS=0018 SS=0018 ES=0018 FS= 0018 GS=0018
+CR0=80050033   CR2=0   CR3=51000
+IDTR=c0056060 (limit 7ff)  GDTR=c0056870 (limit 4f)
+
+Tutor> rs CR3 51000  /*Writing a value in the CR3 registers flushes the TLB*/
+Tutor> rd all
+EAX=00000002 EBX=00009e00   EBP=000578ac
+EDX=00000000 ECX=00069040   ESP=000578a8
+ESI=00090800 EDI=00051ffc   EIP=000578ee
+EFLAGS=0202 (IF=1 SF=0 ZF=0 CF=0 OF=0)
+CS=0010 DS=0018 SS=0018 ES=0018 FS= 0018 GS=0018
+CR0=80050033   CR2=0   CR3=51000        /* CR2 is 0 when no P.F. happens yet */
+                   ^
+IDTR=c0056060 (limit 7ff)  GDTR=c0056870 (limit 4f)
+Tutor> mdd 52000
+00052000    00000007 00001007 00002007 00003000 ......... ...0..
+                                       ^^^^^^^^
+Tutor> md 3000
+00003000    Exception 14 at EIP=00060bd6: Page fault
+                                          ^^^^ ^^^^^
+Tutor> rd all
+EAX=00003000 EBX=00000000   EBP=0006f124
+EDX=00000000 ECX=00060bd0   ESP=0006f124
+ESI=0006f154 EDI=0006f150   EIP=00060bd6
+EFLAGS=10206 (IF=1 SF=0 ZF=0 CF=0 OF=0)
+CS=0010 DS=0018 SS=0018 ES=0018 FS= 0018 GS=0018
+CR0=80050033   CR2=c0003000   CR3=51000 /* CR2 is stored fault address */
+                   ^^^^^^^^
+We see 0xc0003000 in CR2, the LA of VA 0x3000, the faulting address.
+
+******************************************************************************
+***************************QUESTION 6*****************************************
+******************************************************************************
+
+6. Write the appropriate PTEs to make both VA 3000 and VA 5000 refer to
+PA 5000.  Show that it is working by writing once and reading twice.
+Tutor> ~resetting board #6!
+Exception 3 at EIP=000578ee: Breakpoint
+Tutor> mdd 52000
+00052000    00000007 00001007 00002007 00003007 ......... ...0..
+Tutor> 
+00052010    00004007 00005007 00006007 00007007 .@...P...`...p..
+
+Tutor> ms 5200c 5007
+Tutor> mdd 52000   /* The initialized PTE#3 & #5 */
+00052000    00000007 00001007 00002007 00005007 ......... ...P..
+Tutor> 
+00052010    00004007 00005007 00006007 00007007 .@...P...`...p..
+
+Tutor> mdd 3200      /* read two ways, see same garbage */
+00003200    2de4e97d e03c8a98 6895993b f64a719f }..-..<.;..h.qJ.
+Tutor> mdd 5200
+00005200    2de4e97d e03c8a98 6895993b f64a719f }..-..<.;..h.qJ.
+
+Tutor> ms 3200 abcd0123  /* write via page 3 */
+Tutor> mdd 3200 	/* read via page 3 */
+00003200    abcd0123 e03c8a98 6895993b f64a719f #.....<.;..h.qJ.
+Tutor> mdd 5200          /* read  via page 5--same stuff */
+00005200    abcd0123 e03c8a98 6895993b f64a719f #.....<.;..h.qJ.
+
+******************************************************************************
+***************************QUESTION 7*****************************************
+******************************************************************************
+
+7. As a final suicidal action, wipe out the PDE (page dir entry) governing
+the PT we're using.  Note that our whole memory is located in
+0xc0000000-0xc3ffffff in linear address space, so this PDE is 3/4
+the way down the PD.  Is the PDE cached?  
+Be nice and ~r at the end of your session!
+
+Tutor> rd all
+EAX=00000002 EBX=00009e00   EBP=000578ac
+EDX=00000000 ECX=00069040   ESP=000578a8
+ESI=00090800 EDI=00051ffc   EIP=000578ee
+EFLAGS=0202 (IF=1 SF=0 ZF=0 CF=0 OF=0)
+CS=0010 DS=0018 SS=0018 ES=0018 FS= 0018 GS=0018
+CR0=80050033   CR2=0   CR3=51000
+IDTR=c0056060 (limit 7ff)  GDTR=c0056870 (limit 4f)
+
+/* From CR3, we know the address of PD is 51000 */
+
+Tutor> mdd 51000
+00051c00    00052027 00000000 00000000 00000000 ' ..............
+
+/* but this isn't the PDE in use--LA c0000000 is 3/4 of the way up the
+   32-bit LA space, so the PDE in use is 3/4 of the way up the PD, at
+   51c00-- */
+Tutor> mdd 51c00
+00051c00    00052027 00000000 00000000 00000000 ' ..............
+
+/* wipe out PD */
+
+Tutor> ms 51c00 00000000
+Tutor> md 51c00
+00051c00    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
+/* These accesses worked, so the PDE seems to be cached */
+/* (but accesses to previously unref'd pages cause Tutor to hang,
+  so it's not so clear.  Luckily, this is off our subject...) */
+/* flushing the cache causes system to reboot-- */
+Tutor> rs cr3 51000
+Please type <CR> to confirm console setting: 
+
+
+----------------End of experimental problems.-----------------------
+
+
+
+
+
+

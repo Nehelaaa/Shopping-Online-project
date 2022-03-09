@@ -1,0 +1,105 @@
+Script started on Tue 26 Mar 2013 02:18:11 PM EDT
+
+jlantos1@vm71:~/cs240/hw4$ make clean -f makefile2
+
+rm *.o
+
+jlantos1@vm71:~/cs240/hw4$ 
+make -f mail
+[K[Kkefile2
+
+gcc -m32 -c -o main.o main.c
+
+gcc -m32 -c -o getop.o getop.c
+
+gcc -m32 -c -o stack.o stack.c
+
+gcc -m32 -c -o getch.o getch.c
+
+gcc -m32 -g -o calcit main.o getop.o stack.o getch.o
+
+jlantos1@vm71:~/cs240/hw4$ 
+pico getop.c
+[?1049h[1;20r(B[m[4l[?7h[?12l[?25h[?1h=[?1h=[?1h=[39;49m[39;49m(B[m[H[2J(B[0;7m  GNU nano 2.2.6                 
+File: getop.c                                          
+[3;1H(B[0;1m[34m
+/* James Lantos, CS240, HW4 */
+[4d/* March 26 2013 */[5d/*(B[0m[42m [6d(B[0;1m[34m * getop.c[7d *[8d *
+gets next token: operator or numeric operand[9d */[11d
+/* Program getop.c is part of the polish calculator program[21X[81G*/[12d
+/* Some code adapted from K/R textbook code[44X[88G[39m(B[m$[13;1H(B[0;1m[34m/* ..and code supplied by professor[52X[88G[39m(B[m$[15;1H(B[0;1m[34m
+/* ===== PSEUDO CODE ======[60X[88G[39m(B[m$[16;1H(B[0;1m[34m
+/*  while (get the operators and operands )[44X[88G[39m(B[m$[17;1H(B[0;1m[34m
+/*  select the correct case[60X[88G[39m(B[m$[18;36H(B[0;7m[ Read 53 lines ][19d^G(B[m 
+Get Help  
+ (B[0;7m^O(B[m WriteOut   (B[0;7m^R(B[m 
+Read File  (B[0;7m^Y(B[m Prev Page  (B[0;7m^K(B[m Cut Text   (B[0;7m^C(B[m Cur Pos[20d(B[0;7m^X(B[m 
+Exit[15G(B[0;7m^J(B[m Justify    (B[0;7m^W(B[m Where Is   (B[0;7m^V(B[m Next Page  (B[0;7m^U(B[m 
+UnCut Text (B[0;7m^T(B[m To Spell[3d[C[C[C[C[1;79H(B[0;7mModified[3;3H(B[m[1P[C[18d(B[0;7m
+Save modified buffer (ANSWERING "No" WILL DESTROY CHANGES) ?                           
+ [19;1H Y(B[m Yes[K[20d(B[0;7m N(B[m No  [15G  (B[0;7m^C(B[m Cancel[K[18;62H(B[0;7m
+File Name to Write: getop.c                                
+ [19d^G(B[m Get Help[19;23H(B[0;7mM-D(B[m DOS Format[19;45H(B[0;7mM-A(B[m Append[19;67H(B[0;7mM-B(B[m Backup File[20d(B[0;7m^C(B[m 
+Cancel[17G      (B[0;7mM-M(B[m Mac Format[20;45H(B[0;7mM-P(B[m Prepend[18;28H[19d[39;49m(B[m[J[1;79H(B[0;7m        [18;35H(B[m[1K (B[0;7m
+[ Wrote 53 lines ](B[m[K[20;88H[20;1H[?1049l[?1l>
+jlantos1@vm71:~/cs240/hw4$ make -f makefile2
+make: Warning: File `getop.c' has modification time 3.7 s in the future
+gcc -m32 -c -o getop.o getop.c
+gcc -m32 -g -o calcit main.o getop.o stack.o getch.o
+make: warning:  Clock skew detected.  Your build may be incomplete.
+jlantos1@vm71:~/cs240/hw4$ touch calc.h
+jlantos1@vm71:~/cs240/hw4$ touch calc.hmake -f makefile2
+make: Warning: File `calcit' has modification time 4.7 s in the future
+gcc -m32 -c -o main.o main.c
+gcc -m32 -c -o getop.o getop.c
+gcc -m32 -g -o calcit main.o getop.o stack.o getch.o
+make: warning:  Clock skew detected.  Your build may be incomplete.
+
+jlantos1@vm71:~/cs240/hw4$ diff -w make makefile[K[K[K[K[K[K[K[K[Kfile makefile2
+1d0
+< 
+5,6c4,5
+< # < target file >:  	< source files >
+< # 			< compilation command >
+---
+> # < target list >:  	< dependency list >
+> # 			< command list >
+11,12c10,11
+< # the spacing to the < source files > and < compilation command > MUST be
+< # done with tabs, not spaces.
+---
+> # the spacing to the < dependency list > and < command list > MUST be done
+> # with tabs, not spaces.
+19c18
+< 		$(cc) -g -lm -o calcit main.o getop.o stack.o getch.o 
+---
+> 		$(cc) -g -o calcit main.o getop.o stack.o getch.o
+24,25c23
+< 		$(cc) -g -c main.c
+< 
+---
+> 		$(cc) -c -o main.o main.c
+27c25
+< 		$(cc) -g -c getop.c
+---
+> 		$(cc) -c -o getop.o getop.c
+30,31c28
+< 		$(cc) -g -c stack.c
+< 
+---
+> 		$(cc) -c -o stack.o stack.c
+33,34c30
+< 		$(cc) -g -c getch.c
+< 
+---
+> 		$(cc) -c -o getch.o getch.c
+42c38
+< # depend on any file modification time, so the < source files > position is
+---
+> # depend on any file modification time, so the < dependency list > position is
+47d42
+< 
+jlantos1@vm71:~/cs240/hw4$ exit
+exit
+
+Script done on Tue 26 Mar 2013 02:19:06 PM EDT

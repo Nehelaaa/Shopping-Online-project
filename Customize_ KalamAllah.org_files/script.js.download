@@ -1,0 +1,29 @@
+jQuery(function($) {
+    $("#submitbtn").click(function(e){'use strict';
+        e.preventDefault();	//STOP default action
+
+		var $form = $(this).closest('form');
+        $('#submitbtn').css('padding','6px 35px');
+        $('#spinner').show();
+
+        var site = $( "#checkout-url" ).text();
+        var postdata = $form.serializeArray();
+        var formURL = $form.attr("action");
+
+        $.ajax({
+            url : formURL,
+            type: "POST",
+            data : JSON.parse(JSON.stringify(postdata)),
+            success:function(data, textStatus, jqXHR) {
+                $('#spinner,#submitbtn').hide();
+                $("#simple-msg").html('<span><a class="btn btn-primary" href="'+data.data.checkout_url+'">Checkout</a></span>');
+            },
+            error: function(jqXHR, textStatus, errorThrown){
+                $('#spinner').hide();
+                $("#simple-msg-err").html('<span style="color:red">AJAX Request Failed<br/> textStatus='+textStatus+', errorThrown='+errorThrown+'</span>');
+            }
+        });
+	});
+
+
+});

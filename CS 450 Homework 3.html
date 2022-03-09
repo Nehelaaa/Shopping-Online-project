@@ -1,0 +1,459 @@
+
+<!-- saved from url=(0049)https://www.cs.umb.edu/~offner/cs450/hw3/hw3.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<link href="./CS 450 Homework 3_files/defaults.css" rel="stylesheet" type="text/css">
+<title>
+CS 450 Homework 3
+</title>
+</head>
+
+<body>
+<center>
+<b>
+CS 450 Homework 3
+<br>
+</b>
+Carl Offner
+<br>
+Fall 2021
+<br>
+</center>
+<hr>
+<p>
+<b>
+</b></p><center><b>
+Due Friday, October 1, 11:30 PM
+</b>
+</center>
+
+<p>This assignment uses the functional aspects of Scheme to construct a
+relatively simple but non-trivial program.  Once you have finished this
+assignment you will have a good command of the functional style.</p>
+
+<p>I will collect two files from your <tt>hw3</tt>  directory:
+</p><ul>
+<li><tt>convert.scm</tt>
+</li><li><tt>notes.txt</tt>
+</li></ul>
+whose contents I describe below.<p></p>
+
+<p>In contrast to the last two assignments, this assignment is much larger and
+will take much more time, spread over many days.  It is not an assignment that
+you can just jump into and do, and it is not something you can leave for the
+weekend.  There is some serious thinking involved.  Please read everything
+carefully before you do anything else.  In fact, read it more than once.  It
+will save you a lot of time, and you will understand this whole area much
+better.</p>
+
+<hr>
+<p>
+</p><center>
+<b>
+Transforming Units
+</b>
+</center>
+
+<p>You may know that Google has a wonderful facility for converting units.  For
+instance, suppose you are cooking and you forget how many teaspoons are in a
+cup.  You can simple type "1 cup in teaspoons" into the Google search window,
+and the answer will come up.  And you can even perform more complicated (or
+silly, depending on how you look at it) queries.  For instance, if you haven't
+already done this—it's a pretty well-known way to amaze your
+friends—try typing
+</p><pre>   furlongs per fortnight in miles per hour
+</pre>
+
+into the Google search box.  And you can also type things like
+
+<pre>   27.5 furlongs per fortnight in miles per hour
+</pre>
+
+In this assignment you are going to write a program that does more or less the
+same thing.<p></p>
+
+<p>Before we get going, I should say that there are a number of such programs
+available on the web.  I don't believe that any of them are written in Scheme.
+And further, I don't believe that looking at them is going to help you.  (I know
+this because when I started to do this, that's exactly what I did, and I finally
+realized that it was getting me nowhere.)  On the other hand, I am going to give
+you some fairly significant suggestions, which I hope will help you a lot in
+doing this.  (And as usual, the work you hand in must be entirely your own in
+any case.)</p><p>
+
+</p><p>We are not going to write a complete converter program.  That would be too
+much for an assignment like this.  But if we did, it would have three parts:</p>
+
+<ol>
+  <li> <b>Input:</b>  take a phrase, and turn it into some internal
+  representation of what is being asked for.  This is a very complex
+  undertaking.  For instance, the program has to be able to recognize plurals
+  ("meters" vs. "meter", for instance) and common prefixes ("kilo-", "centi-",
+  and so on).  This takes up the bulk of most of these programs from what I can
+  see.  It's an interesting problem, but it's not the problem we really care
+  about here.</li>
+
+  <li> <b>Processing:</b> Take the "from" quantity (e.g., "27.5 furlongs per
+  fortnight", only written in our internal format) and our "to" quantity (e.g.,
+  "miles per hour", again written in our internal format) and perform the
+  translation.  This is what we are going to do.  In our case, the format of the
+  "from" quantity will be
+  <pre>     (27.5 (furlong 1)(fortnight -1))
+  </pre>
+  and the format of the "to" quantity will be
+  <pre>     ((mi 1)(hr -1))
+  </pre>
+  and the actual query will be written as a Scheme function taking these two
+  arguments, like this:
+  <pre>     (convert '(27.5 (furlong 1)(fortnight -1)) '((mi 1)(hr -1)))
+  </pre>
+  Question:  why are the quotes necessary?
+  </li>
+
+  <li> <b>Output:</b> The value of the expression we just wrote will be
+
+  <pre>     (0.01023065476190476 (mi 1)(hr -1))
+  </pre>
+
+  A user-friendly procedure would put this back into everyday English.  But
+  we're not going to worry about that.  We'll just leave it as is.</li>
+</ol>
+
+<p>But we are not going to do all this:</p>
+
+<p>We are going to cut out the Input and Output parts of the program completely and
+only implement the Processing part.  We do this by insisting that the user pass
+in the query in a very formalized manner—essentially, in the internal
+representation that we will be using.  This makes the program we will write much
+less user-friendly, but also makes it possible for us to do this as a homework
+assignment.  And in any case, what we produce here could be used as the central
+component of a fancier program.  (First build a "front end" that takes in
+ordinary English queries as above and translates them into the form we will use
+here; then just pass those translated forms into the program of this
+assignment.)</p>
+
+<center>
+<b>
+The Important Question
+</b>
+</center>
+
+<p>How does the program know how to perform the transformations?  Equivalently,
+how does it know how different units are related?  The answer is that it gets
+this information from a file that it reads in.  That file is named
+<tt>units.dat</tt>.  I have created this file for you, and you can find it in
+~offner/cs450/hw3/units.dat.  It is a plain text file.  You should look at
+it and see how it is constructed.  Copy it into your hw3 directory.  And
+<b>don't change it in any way</b>.
+
+</p><p> One thing you will notice is that it is very simple indeed.  All units are
+defined in terms of certain "elementary" or "base" units.  (And an elementary
+unit, for this purpose, is a unit that is not defined in terms of another unit
+in the <tt>units.dat</tt> file.)  All length units, for instance are represented
+in terms of meters.  Now it would be actually more convenient in constructing
+this file to allow it to contain entries in which some units were defined in
+terms of other derived units, like this:
+
+</p><pre>     (yd (3 (ft 1)))
+</pre>
+But this would complicate our processing, and so we won't do it.<p></p>
+
+<p>We have not discussed how to read in a file to a Scheme program.  We
+<em>will</em> deal with this later in the term.  But in the meantime, here's
+how you do it:  At the end of your file <tt>convert.scm</tt> put the following
+code:
+
+</p><pre>------------------------
+;; read-file produces a list whose elements are the expressions in the file.
+
+(define (read-file)
+  (let ((expr (read)))
+    (if (eof-object? expr)
+        '()
+        (cons expr (read-file)))))
+
+;; Here we go:  read in the database.
+
+(define source (with-input-from-file "units.dat" read-file))
+------------------------
+</pre>
+
+This will read in the file <tt>units.dat</tt> and put the contents as a Scheme
+list into the variable <tt>source</tt>.  Then you can just use that list as a
+lookup table.  (How do you look up things in that table?  Think about
+<tt>assoc</tt>.)<p></p>
+
+<p>To make things as clear as possible, let us make some definitions:</p>
+
+<ul>
+  <li> A <em>base-unit</em> is something like <tt>m</tt> (i.e., "meter"), or
+  <tt>sec</tt> (i.e., "second").</li>
+
+  <li> A <em>unit</em> is a list consisting of a <tt>base-unit</tt> together
+  with an exponent.  For instance, the <tt>unit</tt>
+  <pre>     (m 2)
+  </pre>
+  represents "meters squared", or "square meters"—these mean the same
+  thing.</li>
+
+  <li> A <em>unit-list</em> is a list of <tt>unit</tt>s.  For instance,
+  <pre>     ((mi 1)(hr -1))
+  </pre>
+  represents "miles per hour".  And
+  <pre>     ((kg 1)(m 1)(sec -2))
+  </pre>
+  represents "kilogram meters per second squared".</li>
+
+  <li> A <em>quantity</em> is a list whose first element is a number and the
+  rest of whose elements are units.  That is, the <tt>cdr</tt> of a
+  <em>quantity</em> is a <em>unit-list</em>.  For example,
+
+  <pre>     (1 (kg 1)(m 1)(sec -2))
+  </pre>
+  represents "1 kilogram meter per second squared", which is also known as "1
+  newton", and is the unit of force in the MKS ("meter-kilogram-second")
+  system that I hope you are familiar with from whatever physics course you
+  took.</li>
+
+  <li> Finally, the procedure we are going to write is named "convert", and it
+  has the following signature:
+
+  <pre>     (convert <em>&lt;quantity&gt;</em> <em>&lt;unit-list&gt;</em>)
+  </pre>
+
+  I've already shown you what the output looks like (i.e., the kind of Scheme
+  expression this expression evaluates to) above.</li>
+
+</ul>
+
+<p>Now here are some ideas that you may find useful.  Of course you can really do
+this any way you want, and I certainly don't insist that you take any of these
+ideas exactly as I am writing them.  (In the past I have found that students
+often have very original and interesting ideas about how to solve particular
+problems, and so I encourage you to experiment with different ways of doing
+things.)</p>
+
+<p>First of all, let's look at the general idea of what you want to do.
+Conceptually, it's really pretty simple.  You are given a
+<em>quantity</em>—say it is of the form
+
+</p><pre>   (a U)
+</pre>
+
+where <tt>a</tt> is a number and <tt>U</tt> is the sequence of <em>units</em> in
+a <em>unit-list</em>.  For instance, <tt>U</tt> might be <tt>(mi 1)(hr -2)</tt>.
+And suppose you want to convert this original quantity to a quantity whose
+sequence of units is <tt>V</tt>; i.e., a quantity whose
+<em>unit-list</em> is <tt>(V)</tt>.<p></p>
+
+<p>The first thing you have to check is that <tt>U</tt> is compatible with
+<tt>V</tt>.  What this really means is that if you express both <tt>U</tt> and
+<tt>V</tt> in terms of the same elementary units, then <tt>U</tt> turns out to
+be a constant multiple of <tt>V</tt>.  So the first thing you need to do is to
+transform <tt>U</tt> and <tt>V</tt> so they are expressed in terms of the same
+elementary units.  You will need a procedure that does this.  As already
+specified above, you may assume that if a base-unit is not found by your lookup
+procedure, then it is already an elementary base-unit (like m, or sec, for
+instance).</p>
+
+<p>Applying the procedure, you will then get
+</p><pre>   U = u U-normalized
+
+   V = v V-normalized
+</pre>
+where <tt>U-normalized</tt> and <tt>V-normalized</tt> are written in elementary
+units, and where <tt>u</tt> and <tt>v</tt> are numbers.<p></p>
+
+<p>Now <tt>U</tt> and <tt>V</tt> are compatible if and only iff
+<tt>U-normalized</tt> is the same as <tt>V-normalized</tt>.  So you will need a
+procedure to check this.  And somewhere along the way, you will need to take
+account of the fact that the order of base-units doesn't matter.  For instance,
+<tt>(m 1)(sec -2)</tt> is entirely equivalent to <tt>(sec -2)(m 1)</tt>, or even
+to <tt> (sec -1)(m 2)(sec -1)(m -1)</tt>.</p>
+
+<p>Assuming then that <tt>U</tt> and <tt>V</tt> are compatible, you should be
+able to see that
+
+</p><pre>   U = (u/v) V
+</pre>
+
+In fact, I want to you show this in your <tt>notes.txt</tt> discussion.<p></p>
+
+<p>Finally then, we get
+
+</p><pre>   a U = (au/v) V
+</pre>
+
+So that's what you have to do.<p></p>
+
+<p>You will need a number of helper functions to do this.  Give them useful
+names that will help you (and me and the grader and anyone else who needs to
+read your code—you might want to come back and look at this code a year
+from now, for example) understand what you are doing.  And comment them so it is
+clear what sorts of things they take as input and what they produce when
+evaluated.  Usually giving a good example of how the function is called and what
+it returns is the way to go when doing this.  Further, comments inside the
+function body can be very helpful in understanding tricky code.  Code is not
+easy to read.  Make it easy for the reader; and remember that <em>you</em> might
+be the reader.</p>
+
+<p>You will also probably need a large number of temporary variables.  Don't be
+afraid of the <tt>let</tt> special form.  And you may find yourself nesting
+them, like this:
+
+</p><pre>   (let ((x ...)
+         (y ...))
+     (let ((z <em>&lt;something involving </em><tt>x</tt><em>&gt;</em>))
+       ...
+</pre>
+
+and this nesting might even be rather deep.  Don't be afraid of this either.
+But <em>do</em> give your temporary variables descriptive names like
+<tt>first-unit</tt> or <tt>converted-ratio</tt> (not names like <tt>x</tt> or
+<tt>y</tt>, as I did above).  This is important.  The grader and I will be
+looking for this.<p></p>
+
+<p>Be sure to test your procedure.  Make up some miserably hard tests.  Remember
+that a quantity could look like this:
+</p><pre>   (5 (joule 2)(N -3)(hr 1))
+</pre>
+Although this makes little sense physically, your procedure should handle it
+just fine.  Testing is hard.  Try to be as nasty and malicious as possible in
+the tests you write.  That's what software engineeers have to do.  Don't ever
+assume that "no one would ever input something like ...".  Believe me, someone will.<p></p>
+
+<p>To handle complex quantities like this, you will need to find a way of
+simplifying them.  This is part of the process—described above—of
+representing quantities in terms of elementary units.  Be careful about this.
+It's possible to get confused here.  Write down carefully how you are
+approaching this problem.  Make sure you have put in some meaningful comments
+for this.</p>
+
+<div id="emph_border">
+
+<center>
+<b>
+What you should not do
+</b>
+</center>
+
+<ul>
+
+  <li><p>I mentioned above how to recognise base units in the <tt>units.dat</tt>
+  file.  And I also said you should not alter that file in any way.  So you
+  might think that you could just look at the <tt>units.dat</tt> file and make
+  your own list of base units and include that list in your code directly.</p>
+
+  <p><b>Don't do this.</b> Although you should not modify the <tt>units.dat</tt>
+  file yourself, I might use a different one when I am testing your code.  And
+  that one of course might have a different set of base units. So please be
+  careful about this.</p>
+  </li>
+
+  <li><p>Please only use material we have covered in class up through Wednesday,
+  September 22.  In particular, <font color="red"><bf>do not use any non-functional forms such as
+  <tt>set!</tt></bf></font>.  I'm serious about this.  If there is even one such form in your
+  code, I won't look at it.</p>
+
+  <p>This is for two reasons:</p>
+  
+  <ol>
+    <li> This point of this assignment is to become fluent in the functional
+    programming style.</li>
+
+    <li> In any case, this problem lends itself admirably to a functional
+    solution.  I have seen students try to use other techniques.  Their code was
+    not well written and generally didn't work.  I think you will be amazed at how
+    well the functional programming style works on problems such as this.
+    </li>
+  </ol>
+
+</li></ul>
+
+</div>
+
+<center>
+<b>
+The file <tt>notes.txt</tt>
+</b>
+</center>
+
+<p>Finally, I am going to take your <tt>notes.txt</tt> file very seriously.
+First, please make sure you answer in your <tt>notes.txt</tt> file the questions
+I wrote above.  However, if that is all you write about, I will not be very
+impressed.  In addition to that, I want to know what problems you encountered as
+you did this assignment.  What was easy?  What took some thinking?  What
+mistakes did you make, and how did you fix them?  Would you do things
+differently a second time?  And if you had more time, how would you extend this
+code to make it more useful and/or user-friendly?  (I'm not looking for vague
+ideas here.  If you have an idea, let me know how you would implement it.  Don't
+write actual code, though.)</p>
+    
+<p>If you leave writing your <tt>notes.txt</tt> file until you have finished
+your coding, you most likely won't do a very good job.  For one thing, you will
+have forgotten a lot.  For another thing, you will probably be jammed for time.
+A better idea is to keep some sort of "diary" as you write your code.  Then you
+can turn your diary into the essay in <tt>notes.txt</tt></p>
+
+<p><b>However:</b> I don't want your <tt>notes.txt</tt> to be a bunch of raw
+unedited notes.  I want it to be thoughtful and easy to read.</p>
+
+<p>I also don't want to see big long listings of test runs.  I do want you to
+indicate to me how you tested your code.  (For instance, what sort of tests did
+you run?  What were you looking for?)  But please don't give me all the gory
+details.</p>
+
+<p>Often I find students who think that they are writing <tt>notes.txt</tt> for
+me, and they figure that I already know all this.  So they write very little,
+assuming that I can fill what they haven't written.  There are two things wrong
+with this:
+
+</p><ol>
+
+  <li> I'm not a mind-reader.  While it may seem strange to you, I usually don't
+  know what is going on in your mind, or how you got to understand something.
+  And I'm not good at guessing that sort of thing.  You have to tell me.  I mean
+  this.  It's true.</li>
+
+  <li>In any case, you want to write this as if you had spent a considerable
+  amount of time developing this software.  And now you are going to move to
+  another project, and someone who is much less experienced than you has just
+  been hired to take this over.  You want to write something that person can
+  understand.  Remember that the person doesn't really know very much and is
+  just learning about this.  Don't assume that person is an expert.</li>
+
+
+</ol>
+<p></p>
+
+<p>Just as one example of something you might write:  It's perfectly OK, and in
+fact, it's good to write things like this:</p>
+
+<font color="blue">
+<pre>    At first I thought that
+
+          &lt;XXX&gt;
+
+    But then I found that it led to the following problem:
+
+          &lt;YYY&gt;
+
+    So I changed my design so that
+
+          &lt;ZZZ&gt;
+</pre>
+</font>
+
+<p>This is good, and I always like to read things like this, because it shows me
+how you came to understand the problem.  And furthermore, it will be of great
+help to someone who is learning about this for the first time, since they will
+probably have the same misunderstandings, and this will help them get through
+this process more easily.  And that's the point of writing something like this
+up.</p>
+
+<p>In fact, I frequently put comments like that in my own code, because I know
+that even if no one else ever looks at it, I myself will probably have to look
+at it in a few months, or a few years, and the comment will remind me of where
+the tricky difficulty was.</p>
+
+
+</body></html>
